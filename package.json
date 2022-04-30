@@ -1,0 +1,30 @@
+{
+  "name": "waddles",
+  "version": "2.0.0",
+  "description": "Fuck off, Mee6!",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FluffyPunk/Waddles.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "FluffyPunk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FluffyPunk/Waddles/issues"
+  },
+  "homepage": "https://github.com/FluffyPunk/Waddles#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.13.0",
+    "@discordjs/rest": "^0.4.1",
+    "discord-api-types": "^0.32.0",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0"
+  }
+}
