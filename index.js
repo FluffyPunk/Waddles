@@ -3,6 +3,13 @@ require("dotenv").config();
 const fs = require("node:fs");
 const { Client, Collection, Intents } = require("discord.js");
 const token = process.env.TOKEN;
+const mongoose = require("mongoose");
+const trovo = require("./Trovo");
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -16,8 +23,10 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log("Ready!");
+  // Cycle announcement every 200 ms
+  setInterval(trovo.sendAnnouncement, 200, client);
 });
 
 client.on("interactionCreate", async (interaction) => {
