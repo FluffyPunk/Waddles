@@ -26,6 +26,19 @@ for (const file of commandFiles) {
 
 client.once("ready", async () => {
   console.log("Ready!");
+  ws.once("message", async (raw) => {
+    const { type } = JSON.parse(raw);
+    if (type === "RESPONSE") {
+      setInterval(() => {
+        ws.send(
+          JSON.stringify({
+            type: "PING",
+            nonce: "You can keep your magic, i have laser beams",
+          })
+        );
+      }, 30000);
+    }
+  });
   ws.on("message", async (raw) => await wsWork(raw, client));
   trovo.sendAnnouncement(client);
 });
