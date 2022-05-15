@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const announceSchema = new mongoose.Schema(
   {
-    streamer: {
+    nickname: {
       type: mongoose.SchemaTypes.String,
       required: true,
     },
@@ -13,9 +13,12 @@ const announceSchema = new mongoose.Schema(
     discordList: {
       type: mongoose.SchemaTypes.Array,
     },
+    lastOffline: {
+      type: mongoose.SchemaTypes.Number,
+    },
   },
   { optimisticConcurrency: true }
 );
-announceSchema.index({ streamer: 1 }, { unique: true, background: true });
+announceSchema.index({ nickname: 1 }, { unique: true, background: true });
 
 module.exports = mongoose.model("TrovoAnnounce", announceSchema);
