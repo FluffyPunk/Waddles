@@ -4,7 +4,11 @@
   "description": "Fuck off, Mee6!",
   "main": "index.js",
   "scripts": {
-    "test": "node ."
+    "test": "node .",
+    "dpguild": "node ./cmdprocess/deployCMDguild.js",
+    "dpglobal": "node ./cmdprocess/deployCMDglobal.js",
+    "rmguild": "node ./cmdprocess/clearCMDguild.js",
+    "rmglobal": "node ./cmdprocess/clearCMDglobal.js"
   },
   "repository": {
     "type": "git",

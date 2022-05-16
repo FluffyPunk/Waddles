@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const { Client, Collection, Intents } = require("discord.js");
 const token = process.env.TOKEN;
 const mongoose = require("mongoose");
-const { ws, wsWork } = require("./websocket_test");
+const { ws, wsWork } = require("./websocket");
 const trovo = require("./Trovo");
 
 mongoose.connect(process.env.MONGO_URI, {
@@ -26,6 +26,7 @@ for (const file of commandFiles) {
 
 client.once("ready", async () => {
   console.log("Ready!");
+  trovo.sendAnnouncement(client);
   ws.once("message", async (raw) => {
     const { type } = JSON.parse(raw);
     if (type === "RESPONSE") {
@@ -40,7 +41,6 @@ client.once("ready", async () => {
     }
   });
   ws.on("message", async (raw) => await wsWork(raw, client));
-  trovo.sendAnnouncement(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
