@@ -55,9 +55,7 @@ async function getStreamInfo(streamerName) {
       username: streamerName,
     };
     const response = await axios.post(url, data, { headers });
-    const { is_live, started_at, ended_at } = response.data;
-    const result = { is_live, started_at, ended_at };
-    return result;
+    return response.data;
   } catch (error) {
     console.error(error);
   }
