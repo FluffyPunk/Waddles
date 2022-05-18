@@ -13,8 +13,8 @@ module.exports = {
       .setFields(
         { name: "Game", value: data.category_name },
         { name: "Live URL", value: data.channel_url }
-      )
-      .setImage(data.thumbnail);
+      );
     client.channels.cache.get(channel).send({ embeds: [embed] });
+    se;
   },
 };
