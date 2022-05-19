@@ -1,43 +1,42 @@
 require("dotenv").config();
 const axios = require("axios");
 const announcement = require("./schemas/TrovoAnnounceSchema");
-/*
-
-Freq: 1/20 sec
-
-1. Take MongoDB collection of all users
-2. For each user, get their online status
-3. If online went from false to true, send announcement
-
-*/
 
 async function sendAnnouncement(client) {
   try {
     const streamers = await announcement.find();
     for (const streamer of streamers) {
-      const onlineStatus = await getOnlineStatus(streamer.streamer);
-      if (onlineStatus && !streamer.online) {
+      const onlineStatus = await getStreamInfo(streamer.nickname);
+      if (
+        onlineStatus.is_live &&
+        !streamer.online &&
+        (Date.now() / 1000).toFixed(0) - streamer.lastOffline > 300
+      ) {
         streamer.online = true;
-
         await streamer.save();
-        for (const channel of streamer.discordList) {
-          client.channels.cache.get(channel).send({
-            embeds: [
-              {
-                title: `${streamer.streamer} is live!`,
-                description: `Join! https://trovo.live/${streamer.streamer}`,
-                color: 0x00ff00,
-                timestamp: new Date(),
-                footer: {
-                  text: "Trovo",
-                },
-              },
-            ],
-          });
+        const start = Number(onlineStatus.started_at);
+        for (const channelId of streamer.discordList) {
+          const channel = client.channels.cache.get(channelId);
+          if (channel && channel.isText()) {
+            channel.send(
+              `Due to technical reasons, alert has not been sent.\n ${streamer.nickname} is live since <t:${start}:t>! https://trovo.live/${streamer.nickname}`
+            );
+          }
         }
-      } else if (!onlineStatus && streamer.online) {
+      } else if (!onlineStatus.is_live && streamer.online) {
         streamer.online = false;
-        streamer.save();
+        streamer.lastOffline = Number(onlineStatus.ended_at);
+        if ((Date.now() / 1000).toFixed(0) - streamer.lastOffline > 300) {
+          for (const channelId of streamer.discordList) {
+            const channel = client.channels.cache.get(channelId);
+            if (channel && channel.isText()) {
+              channel.send(
+                `Due to technical reasons, alert has not been sent.\n ${streamer.nickname} went offline at <t:${streamer.lastOffline}:t>!`
+              );
+            }
+          }
+        }
+        await streamer.save();
       }
     }
   } catch (error) {
@@ -45,7 +44,7 @@ async function sendAnnouncement(client) {
   }
 }
 
-async function getOnlineStatus(streamerName) {
+async function getStreamInfo(streamerName) {
   try {
     const url = "https://open-api.trovo.live/openplatform/channels/id";
     const headers = {
@@ -56,14 +55,13 @@ async function getOnlineStatus(streamerName) {
       username: streamerName,
     };
     const response = await axios.post(url, data, { headers });
-    const res = response.data;
-    return res.is_live;
+    return response.data;
   } catch (error) {
     console.error(error);
   }
 }
 
 module.exports = {
-  getOnlineStatus: getOnlineStatus,
+  getStreamInfo: getStreamInfo,
   sendAnnouncement: sendAnnouncement,
 };

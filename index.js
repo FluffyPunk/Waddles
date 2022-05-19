@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const { Client, Collection, Intents } = require("discord.js");
 const token = process.env.TOKEN;
 const mongoose = require("mongoose");
+const { ws, wsWork } = require("./websocket");
 const trovo = require("./Trovo");
 
 mongoose.connect(process.env.MONGO_URI, {
@@ -25,8 +26,21 @@ for (const file of commandFiles) {
 
 client.once("ready", async () => {
   console.log("Ready!");
-  // Cycle announcement every 200 ms
-  setInterval(trovo.sendAnnouncement, 200, client);
+  trovo.sendAnnouncement(client);
+  ws.once("message", async (raw) => {
+    const { type } = JSON.parse(raw);
+    if (type === "RESPONSE") {
+      setInterval(() => {
+        ws.send(
+          JSON.stringify({
+            type: "PING",
+            nonce: "You can keep your magic, i have laser beams",
+          })
+        );
+      }, 30000);
+    }
+  });
+  ws.on("message", async (raw) => await wsWork(raw, client));
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -41,7 +55,7 @@ client.on("interactionCreate", async (interaction) => {
   } catch (error) {
     console.error(error);
     await interaction.reply({
-      content: "There was an error while executing this command!",
+      content: "ACHTUNG KURWA!",
       ephemeral: true,
     });
   }

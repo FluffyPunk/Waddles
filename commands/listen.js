@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const announce = require("../schemas/TrovoAnnounceSchema");
+const trovo = require("../Trovo");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -37,8 +38,8 @@ module.exports = {
     }
 
     const streamerName = streamer.toLowerCase();
-
-    const streamerDoc = await announce.findOne({ streamer: streamerName });
+    const streamInfo = await trovo.getStreamInfo(streamerName);
+    const streamerDoc = await announce.findOne({ nickname: streamerName });
 
     if (interaction.options.getSubcommand() === "remove") {
       if (!streamerDoc) {
@@ -81,9 +82,10 @@ module.exports = {
         }
       } else {
         const newDoc = new announce({
-          streamer: streamerName,
+          nickname: streamerName,
           online: false,
           discordList: [interaction.channelId],
+          lastOffline: streamInfo.ended_at,
         });
         await newDoc.save();
 
